@@ -1,0 +1,36 @@
+name: pract5-attendance
+
+services:
+  attendance:
+    image: edu/attendance-service:v0.5.0
+    pull_policy: never
+    container_name: pract5-attendance
+    ports:
+      - "127.0.0.1:8106:8006"
+    environment:
+      PORT: "8006"
+      MESSAGE: "Attendance online"
+      APP_VERSION: "0.5.0"
+      DATA_DIR: "/data"
+    volumes:
+      - pract5-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os, urllib.request as u; u.urlopen('http://127.0.0.1:%s/health' % os.environ['PORT'], timeout=2)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    mem_limit: 128m
+    restart: unless-stopped
+    networks:
+      - isolated
+
+networks:
+  isolated:
+    name: pract5-isolated
+    internal: true
+
+volumes:
+  pract5-data:
+    name: pract5-data
+
